@@ -17,7 +17,6 @@ import com.moxi.mogublog.xo.utils.WebUtil;
 import com.moxi.mogublog.xo.vo.UserVO;
 import com.moxi.mougblog.base.enums.EStatus;
 import com.moxi.mougblog.base.exception.exceptionType.InsertException;
-import com.moxi.mougblog.base.exception.exceptionType.QueryException;
 import com.moxi.mougblog.base.global.BaseSQLConf;
 import com.moxi.mougblog.base.global.Constants;
 import com.moxi.mougblog.base.global.ErrorCode;
@@ -156,19 +155,21 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
         if (StringUtils.isNotEmpty(userVO.getKeyword()) && !StringUtils.isEmpty(userVO.getKeyword().trim())) {
             queryWrapper.like(SQLConf.USER_NAME, userVO.getKeyword().trim()).or().like(SQLConf.NICK_NAME, userVO.getKeyword().trim());
         }
+        // 资料来源
         if (StringUtils.isNotEmpty(userVO.getSource()) && !StringUtils.isEmpty(userVO.getSource().trim())) {
             queryWrapper.eq(SQLConf.SOURCE, userVO.getSource().trim());
         }
+        // 评论状态，0 禁言， 1 正常
         if (userVO.getCommentStatus() != null) {
             queryWrapper.eq(SQLConf.COMMENT_STATUS, userVO.getCommentStatus());
         }
-
+        // OrderBy排序字段（asc: 升序）
         if(StringUtils.isNotEmpty(userVO.getOrderByAscColumn())) {
             // 将驼峰转换成下划线
             String column = StringUtils.underLine(new StringBuffer(userVO.getOrderByAscColumn())).toString();
             queryWrapper.orderByAsc(column);
         } else if(StringUtils.isNotEmpty(userVO.getOrderByDescColumn())) {
-            // 将驼峰转换成下划线
+            // 将驼峰转换成下划线 --- 对应表中字段
             String column = StringUtils.underLine(new StringBuffer(userVO.getOrderByDescColumn())).toString();
             queryWrapper.orderByDesc(column);
         } else {
@@ -182,8 +183,10 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
         queryWrapper.ne(SQLConf.STATUS, EStatus.DISABLED);
         IPage<User> pageList = userService.page(page, queryWrapper);
 
+        // 查询用户list
         List<User> list = pageList.getRecords();
 
+        // 所有用户的个人头像照片id(UID)，使用 逗号 分隔
         final StringBuffer fileUids = new StringBuffer();
         list.forEach(item -> {
             if (StringUtils.isNotEmpty(item.getAvatar())) {
@@ -191,14 +194,18 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
             }
         });
 
+        // 头像照片map集合 <id,url>
         Map<String, String> pictureMap = new HashMap<>();
         String pictureResult = null;
 
+        // 根据照片id，查询所有照片信息
         if (fileUids != null) {
             pictureResult = this.pictureFeignClient.getPicture(fileUids.toString(), SysConf.FILE_SEGMENTATION);
         }
+        // 得到所有照片信息url
         List<Map<String, Object>> picList = webUtil.getPictureMap(pictureResult);
 
+        // 照片list转放到map中
         picList.forEach(item -> {
             pictureMap.put(item.get(SQLConf.UID).toString(), item.get(SQLConf.URL).toString());
         });
@@ -214,6 +221,7 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
                     }
                 });
                 if (pictureListTemp.size() > 0) {
+                    // 设置头像为第一张图片
                     item.setPhotoUrl(pictureListTemp.get(0));
                 }
             }
@@ -263,8 +271,15 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
         return ResultUtil.successWithMessage(MessageConf.DELETE_SUCCESS);
     }
 
+    /**
+     * 重置用户密码
+     *
+     * @param userVO
+     * @return
+     */
     @Override
     public String resetUserPassword(UserVO userVO) {
+        // 获得默认初始密码 --- 有一张系统默认表单
         String defaultPassword = sysParamsService.getSysParamsValueByKey(SysConf.SYS_DEFAULT_PASSWORD);
         User user = userService.getById(userVO.getUid());
         user.setPassWord(MD5Utils.string2MD5(defaultPassword));

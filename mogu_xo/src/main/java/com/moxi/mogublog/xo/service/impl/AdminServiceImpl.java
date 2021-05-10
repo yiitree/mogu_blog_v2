@@ -171,21 +171,29 @@ public class AdminServiceImpl extends SuperServiceImpl<AdminMapper, Admin> imple
     public String getList(AdminVO adminVO) {
         QueryWrapper<Admin> queryWrapper = new QueryWrapper<>();
         String pictureResult = null;
+        // 关键词搜索 --- 用户名和昵称
         if (StringUtils.isNotEmpty(adminVO.getKeyword())) {
             queryWrapper.like(SQLConf.USER_NAME, adminVO.getKeyword()).or().like(SQLConf.NICK_NAME, adminVO.getKeyword().trim());
         }
+        // 分页查询
         Page<Admin> page = new Page<>();
+        // 当前页
         page.setCurrent(adminVO.getCurrentPage());
+        // 一页数量
         page.setSize(adminVO.getPageSize());
         // 去除密码
         queryWrapper.select(Admin.class, i -> !i.getProperty().equals(SQLConf.PASS_WORD));
+        // 用户需是激活状态
         queryWrapper.eq(SQLConf.STATUS, EStatus.ENABLE);
+        // 分页查询结果
         IPage<Admin> pageList = adminService.page(page, queryWrapper);
         List<Admin> list = pageList.getRecords();
 
         final StringBuffer fileUids = new StringBuffer();
         List<String> adminUidList = new ArrayList<>();
+        // 用户查询结果
         list.forEach(item -> {
+            // 用户头像不为空
             if (StringUtils.isNotEmpty(item.getAvatar())) {
                 fileUids.append(item.getAvatar() + SysConf.FILE_SEGMENTATION);
             }

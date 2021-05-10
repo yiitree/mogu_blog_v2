@@ -73,6 +73,11 @@ public class SysParamsServiceImpl extends SuperServiceImpl<SysParamsMapper, SysP
         return sysParams;
     }
 
+    /**
+     * 获得初始系统参数 --- 会实现保存到redis中
+     * @param paramsKey
+     * @return
+     */
     @Override
     public String getSysParamsValueByKey(String paramsKey) {
         // 判断Redis中是否包含该key的数据
@@ -86,6 +91,7 @@ public class SysParamsServiceImpl extends SuperServiceImpl<SysParamsMapper, SysP
                 throw new QueryException(ErrorCode.PLEASE_CONFIGURE_SYSTEM_PARAMS, MessageConf.PLEASE_CONFIGURE_SYSTEM_PARAMS);
             }
             paramsValue = sysParams.getParamsValue();
+            // 常用参数，缓存到redis中
             redisUtil.set(redisKey, paramsValue);
         }
         return paramsValue;

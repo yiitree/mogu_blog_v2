@@ -84,33 +84,32 @@
         -->
         <module>mogu_xo</module>
 
+        <!-- #################################### -->
         <!--
         提供web端API接口服务
         内部调用：mogu_xo、nacos、sentinel、等所有
          -->
         <module>mogu_web</module>
-
-
-
         <!-- 提供admin端API接口服务 -->
         <module>mogu_admin</module>
+        <!-- 搜索服务 -->
+        <module>mogu_search</module>
 
-
-
+        <!-- #################################### -->
         <!-- 照片存储服务 -->
         <module>mogu_picture</module>
         <!-- 发短息服务 -->
         <module>mogu_sms</module>
-        <!-- 搜索服务 -->
-        <module>mogu_search</module>
+        <!-- 爬虫服务 -->
+        <module>mogu_spider</module>
 
+        <!-- #################################### -->
+        <!-- 监控服务，集成SpringBootAdmin用于管理和监控SpringBoot应用程序 -->
         <module>mogu_monitor</module>
         <!-- 网关 -->
         <module>mogu_gateway</module>
         <!-- zipkin链路追踪 -->
         <module>mogu_zipkin</module>
-
-        <module>mogu_spider</module>
 
     </modules>
 
