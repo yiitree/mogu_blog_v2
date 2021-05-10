@@ -17,12 +17,14 @@
     </properties>
 
     <dependencies>
+        <!-- 本项目工具类 -->
         <dependency>
             <artifactId>mogu_utils</artifactId>
             <groupId>com.moxi</groupId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!-- hutool工具包 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
