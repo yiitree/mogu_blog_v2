@@ -19,13 +19,20 @@ import java.util.TimeZone;
  * @author 陌溪
  * @date 2020年12月31日21:26:04
  */
-@EnableTransactionManagement
 @SpringBootApplication
+// 启注解事务管理 --- 不加也可以
+@EnableTransactionManagement
+// 开启Swagger3生成接口文档
 @EnableOpenApi
+// 服务发现
 @EnableDiscoveryClient
+// 开启缓存
 @EnableCaching
+// 开启Rabbit
 @EnableRabbit
+// 配置FeignClients位置
 @EnableFeignClients("com.moxi.mogublog.commons.feign")
+// 扫描包位置
 @ComponentScan(basePackages = {
         "com.moxi.mogublog.commons.config",
         "com.moxi.mogublog.commons.fallback",

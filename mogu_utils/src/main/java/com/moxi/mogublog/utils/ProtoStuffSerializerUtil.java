@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
+ * 图片序列化工具
  * ProtoStuffSerializerUtil
  *
  * @author Sirius

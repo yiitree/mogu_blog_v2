@@ -15,45 +15,19 @@
 
     <dependencies>
 
+        <!-- ######################### 项目内部模块 ######################### -->
+        <!-- xo：service层和dao层 -->
         <dependency>
             <artifactId>mogu_xo</artifactId>
             <groupId>com.moxi</groupId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-alibaba-sentinel</artifactId>
-            <version>${sentinel.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
+        <!-- ######################### spring相关模块 ######################### -->
+        <!-- spring-web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>${servlet.api.version}</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter -->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-boot-starter</artifactId>
-            <version>${swagger.starter.version}</version>
         </dependency>
 
         <!--spring切面aop依赖-->
@@ -62,22 +36,57 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!-- spring-test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- ######################### alibaba-cloud相关模块 ######################### -->
+        <!-- nacos-config配置中心 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+
+        <!-- nacos-discovery服务发现 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
 
+        <!-- sentinel流量卫士 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-alibaba-sentinel</artifactId>
+            <version>${sentinel.version}</version>
+        </dependency>
+
+        <!-- ######################### 第三方相关模块 ######################### -->
+        <!-- 管理和监控SpringBoot应用程序 -->
         <dependency>
             <groupId>de.codecentric</groupId>
             <artifactId>spring-boot-admin-starter-client</artifactId>
             <version>${springBootAdmin.version}</version>
         </dependency>
+
+        <!-- servlet-api
+         javax.servlet中包含由Servlet或Web容器中使用的许多接口和类
+         -->
         <dependency>
-            <groupId>com.moxi</groupId>
-            <artifactId>mogu_utils</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet.api.version}</version>
         </dependency>
+
+        <!-- 在线文档 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>${swagger.starter.version}</version>
+        </dependency>
+
     </dependencies>
 
 

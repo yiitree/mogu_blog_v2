@@ -35,7 +35,9 @@ public class AdminRestApi {
     @Autowired
     private AdminService adminService;
 
+    // 自定义注解 -- 权限校验
     @AuthorityVerify
+    // swagger注解
     @ApiOperation(value = "获取管理员列表", notes = "获取管理员列表")
     @PostMapping("/getList")
     public String getList(@Validated({GetList.class}) @RequestBody AdminVO adminVO, BindingResult result) {
