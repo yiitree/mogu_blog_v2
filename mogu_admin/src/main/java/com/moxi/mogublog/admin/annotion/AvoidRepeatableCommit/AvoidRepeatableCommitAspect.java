@@ -41,39 +41,45 @@ public class AvoidRepeatableCommitAspect {
 
         HttpServletRequest request = RequestHolder.getRequest();
 
+        // 获得ip
         String ip = IpUtils.getIpAddr(request);
 
-        //获取注解
+        // 得到注解
         MethodSignature signature = (MethodSignature) point.getSignature();
+        // 要访问的方法
         Method method = signature.getMethod();
-
-        //目标类、方法
+        // 方法所属类
         String className = method.getDeclaringClass().getName();
-
+        // 方法名
         String name = method.getName();
 
-        // 得到类名和方法
+        // 拼接成全类名 --- 类名#方法名
         String ipKey = String.format("%s#%s", className, name);
 
-        // 转换成HashCode
+        // 转换成HashCode --- 把全类名转化为hashcode
         int hashCode = Math.abs(ipKey.hashCode());
 
+        // 保存到redis中的key: AVOID_REPEATABLE_COMMIT:ip_hashCode
         String key = String.format("%s:%s_%d", RedisConf.AVOID_REPEATABLE_COMMIT, ip, hashCode);
 
         log.info("ipKey={},hashCode={},key={}", ipKey, hashCode, key);
 
+        // 得到方法上指定注解：AvoidRepeatableCommit
         AvoidRepeatableCommit avoidRepeatableCommit = method.getAnnotation(AvoidRepeatableCommit.class);
 
+        // 得到注解上的指定时间，已设置默认时间 default:1000
         long timeout = avoidRepeatableCommit.timeout();
 
+        // 访问redis中是否已经有保存
         String value = redisUtil.get(key);
 
+        // 如果有，测抛出请勿重复提交表单提示
         if (StringUtils.isNotBlank(value)) {
             log.info("请勿重复提交表单");
             return ResultUtil.result(SysConf.ERROR, "请勿重复提交表单");
         }
 
-        // 设置过期时间
+        // 如果没有则保存到redis中,其实只要保存key就可以，根据key查询是否有这个键值对，如果有，则说明已经保存过，value其实不重要
         redisUtil.setEx(key, StringUtils.getUUID(), timeout, TimeUnit.MILLISECONDS);
 
         //执行方法

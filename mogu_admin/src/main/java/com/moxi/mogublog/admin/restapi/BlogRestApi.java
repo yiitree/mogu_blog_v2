@@ -52,6 +52,7 @@ public class BlogRestApi {
         return ResultUtil.successWithData(blogService.getPageList(blogVO));
     }
 
+    // 自定义注解 --- 防止重复提交
     @AvoidRepeatableCommit
     @AuthorityVerify
     @OperationLogger(value = "增加博客")
