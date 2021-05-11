@@ -18,7 +18,10 @@ import java.util.Map;
 /**
  * 问题描述
  * 启动后报：
- * 程序异常：org.springframework.web.util.NestedServletException: Handler dispatch failed; nested exception is java.lang.NoSuchMethodError: com.alibaba.csp.sentinel.transport.config.TransportConfig.getConsoleServer()Ljava/lang/String;
+ * 程序异常：
+ * org.springframework.web.util.NestedServletException:
+ * Handler dispatch failed; nested exception is java.lang.NoSuchMethodError:
+ * com.alibaba.csp.sentinel.transport.config.TransportConfig.getConsoleServer()Ljava/lang/String;
  * 健康检查报500错误
  *
  * 问题分析
