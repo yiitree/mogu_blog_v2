@@ -125,9 +125,10 @@ public class LoggerAspect {
 
         Method currentMethod = AspectUtil.INSTANCE.getMethod(point);
 
-        //获取操作名称
+        //获取操作名称 --- 使用注解的方法名称
         OperationLogger annotation = currentMethod.getAnnotation(OperationLogger.class);
 
+        // 注解内部内部参数 --- 是否保存
         boolean save = annotation.save();
 
         String bussinessName = AspectUtil.INSTANCE.parseParams(point.getArgs(), annotation.value());

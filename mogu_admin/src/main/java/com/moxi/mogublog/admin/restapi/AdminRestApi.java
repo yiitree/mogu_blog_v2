@@ -35,9 +35,7 @@ public class AdminRestApi {
     @Autowired
     private AdminService adminService;
 
-    // 自定义注解 -- 权限校验
     @AuthorityVerify
-    // swagger注解
     @ApiOperation(value = "获取管理员列表", notes = "获取管理员列表")
     @PostMapping("/getList")
     public String getList(@Validated({GetList.class}) @RequestBody AdminVO adminVO, BindingResult result) {
@@ -46,8 +44,11 @@ public class AdminRestApi {
         return adminService.getList(adminVO);
     }
 
+    // 自定义注解 -- 权限校验
     @AuthorityVerify
+    // 自定义注解 -- 记录日志
     @OperationLogger(value = "重置用户密码")
+    // swagger注解
     @ApiOperation(value = "重置用户密码", notes = "重置用户密码")
     @PostMapping("/restPwd")
     public String restPwd(@Validated({Update.class}) @RequestBody AdminVO adminVO, BindingResult result) {

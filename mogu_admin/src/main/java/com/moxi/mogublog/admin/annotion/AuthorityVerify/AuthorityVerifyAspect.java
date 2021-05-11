@@ -58,6 +58,7 @@ public class AuthorityVerifyAspect {
     @Autowired
     RedisUtil redisUtil;
 
+    // 切点：使用@annotation注解的方法
     @Pointcut(value = "@annotation(authorityVerify)")
     public void pointcut(AuthorityVerify authorityVerify) {
 

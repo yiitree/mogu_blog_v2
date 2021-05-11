@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 自定义权限校验接口
+ * 自定义权限校验接口 --- 具体实现为 AuthorityVerifyAspect 使用aop实现
  *
  * @author 陌溪
  * @date 2020年3月21日18:57:15
@@ -14,5 +14,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AuthorityVerify {
+
     String value() default "";
+
 }
