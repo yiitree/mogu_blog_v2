@@ -43,17 +43,20 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 系统的登录接口
+ *
  * 用户登录RestApi，系统自带的登录注册功能
  * 第三方登录请移步AuthRestApi
  *
  * @author 陌溪
  * @date 2020年5月6日17:50:23
  */
-@RestController
+@Slf4j
+// SpringCloud配置热更新@RefreshScope
 @RefreshScope
+@RestController
 @RequestMapping("/login")
 @Api(value = "登录管理相关接口", tags = {"登录管理相关接口"})
-@Slf4j
 public class LoginRestApi {
 
     @Autowired
@@ -70,6 +73,8 @@ public class LoginRestApi {
     private RedisUtil redisUtil;
     @Autowired
     private SystemConfigService systemConfigService;
+
+    // 可以热更新
     @Value(value = "${BLOG.USER_TOKEN_SURVIVAL_TIME}")
     private Long userTokenSurvivalTime;
 
@@ -77,10 +82,12 @@ public class LoginRestApi {
     @PostMapping("/login")
     public String login(@Validated({GetOne.class}) @RequestBody UserVO userVO, BindingResult result) {
         ThrowableUtils.checkParamArgument(result);
+        // 查看系统是否开启登录功能
         Boolean isOpenLoginType = webConfigService.isOpenLoginType(RedisConf.PASSWORD);
         if (!isOpenLoginType) {
             return ResultUtil.result(SysConf.ERROR, "后台未开启该登录方式!");
         }
+        // 根据用户名查询用户
         String userName = userVO.getUserName();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.and(wrapper -> wrapper.eq(SQLConf.USER_NAME, userName).or().eq(SQLConf.EMAIL, userName));
@@ -92,11 +99,13 @@ public class LoginRestApi {
         if (EStatus.FREEZE == user.getStatus()) {
             return ResultUtil.result(SysConf.ERROR, "用户账号未激活");
         }
+        // 判断用户密码是否正确
         if (StringUtils.isNotEmpty(user.getPassWord()) && user.getPassWord().equals(MD5Utils.string2MD5(userVO.getPassWord()))) {
             // 更新登录信息
             HttpServletRequest request = RequestHolder.getRequest();
             String ip = IpUtils.getIpAddr(request);
             Map<String, String> userMap = IpUtils.getOsAndBrowserInfo(request);
+            // 记录用户本次登录信息
             user.setBrowser(userMap.get(SysConf.BROWSER));
             user.setOs(userMap.get(SysConf.OS));
             user.setLastLoginIp(ip);
@@ -114,9 +123,9 @@ public class LoginRestApi {
             String token = StringUtils.getUUID();
             // 过滤密码
             user.setPassWord("");
-            //将从数据库查询的数据缓存到redis中
+            // 将从数据库查询的数据缓存到redis中 --- k：USER_TOKEN:token  v：user
             redisUtil.setEx(RedisConf.USER_TOKEN + Constants.SYMBOL_COLON + token, JsonUtils.objectToJson(user), userTokenSurvivalTime, TimeUnit.HOURS);
-            log.info("登录成功，返回token: ", token);
+            log.info("登录成功，返回token: {}", token);
             return ResultUtil.result(SysConf.SUCCESS, token);
         } else {
             return ResultUtil.result(SysConf.ERROR, "账号或密码错误");
@@ -126,6 +135,7 @@ public class LoginRestApi {
     @ApiOperation(value = "用户注册", notes = "用户注册")
     @PostMapping("/register")
     public String register(@Validated({Insert.class}) @RequestBody UserVO userVO, BindingResult result) {
+        // 校验参数
         ThrowableUtils.checkParamArgument(result);
         // 判断是否开启登录方式
         Boolean isOpenLoginType = webConfigService.isOpenLoginType(RedisConf.PASSWORD);
@@ -135,6 +145,7 @@ public class LoginRestApi {
         if (userVO.getUserName().length() < Constants.NUM_FIVE || userVO.getUserName().length() >= Constants.NUM_TWENTY || userVO.getPassWord().length() < Constants.NUM_FIVE || userVO.getPassWord().length() >= Constants.NUM_TWENTY) {
             return ResultUtil.result(SysConf.ERROR, MessageConf.PARAM_INCORRECT);
         }
+        // 记录用户本次登录信息
         HttpServletRequest request = RequestHolder.getRequest();
         String ip = IpUtils.getIpAddr(request);
         Map<String, String> map = IpUtils.getOsAndBrowserInfo(request);
@@ -142,6 +153,7 @@ public class LoginRestApi {
         queryWrapper.and(wrapper -> wrapper.eq(SQLConf.USER_NAME, userVO.getUserName()).or().eq(SQLConf.EMAIL, userVO.getEmail()));
         queryWrapper.eq(SysConf.STATUS, EStatus.ENABLE);
         queryWrapper.last(SysConf.LIMIT_ONE);
+        // 用户是否已存在
         User user = userService.getOne(queryWrapper);
         if (user != null) {
             return ResultUtil.result(SysConf.ERROR, MessageConf.USER_OR_EMAIL_EXIST);
@@ -159,14 +171,18 @@ public class LoginRestApi {
 
         // 判断是否开启用户邮件激活状态
         SystemConfig systemConfig = systemConfigService.getConfig();
+        // 是否开启用户邮件激活功能【0 关闭，1 开启】
         String openEmailActivate = systemConfig.getOpenEmailActivate();
         String resultMessage = "注册成功";
+        // 打开邮箱激活
         if(EOpenStatus.OPEN.equals(openEmailActivate)) {
+            // 没有发邮件，此时为 冻结状态
             user.setStatus(EStatus.FREEZE);
         } else {
             // 未开启注册用户邮件激活，直接设置成激活状态
             user.setStatus(EStatus.ENABLE);
         }
+        // 增加用户，此时用户状态为激活或者冻结，如果冻结则需要进行发邮件激活
         user.insert();
 
         // 判断是否需要发送邮件通知
@@ -175,7 +191,7 @@ public class LoginRestApi {
             String token = StringUtils.getUUID();
             // 过滤密码
             user.setPassWord("");
-            //将从数据库查询的数据缓存到redis中，用于用户邮箱激活，1小时后过期
+            // 将从数据库查询的数据缓存到redis中，用于用户邮箱激活，1小时后过期
             redisUtil.setEx(RedisConf.ACTIVATE_USER + RedisConf.SEGMENTATION + token, JsonUtils.objectToJson(user), 1, TimeUnit.HOURS);
             // 发送邮件，进行账号激活
             rabbitMqUtil.sendActivateEmail(user, token);
@@ -189,13 +205,16 @@ public class LoginRestApi {
     public String bindUserEmail(@PathVariable("token") String token) {
         // 从redis中获取用户信息
         String userInfo = redisUtil.get(RedisConf.ACTIVATE_USER + RedisConf.SEGMENTATION + token);
+        // 缓存中没有，说明已经过期
         if (StringUtils.isEmpty(userInfo)) {
             return ResultUtil.result(SysConf.ERROR, MessageConf.INVALID_TOKEN);
         }
         User user = JsonUtils.jsonToPojo(userInfo, User.class);
+        // 重复发送信息，已经激活过 --- 双重验证
         if (EStatus.FREEZE != user.getStatus()) {
             return ResultUtil.result(SysConf.ERROR, "用户账号已经被激活");
         }
+        // 把用户状态改为激活装填
         user.setStatus(EStatus.ENABLE);
         user.updateById();
 
@@ -219,7 +238,8 @@ public class LoginRestApi {
 
     @ApiOperation(value = "退出登录", notes = "退出登录", response = String.class)
     @PostMapping(value = "/logout")
-    public String logout(@ApiParam(name = "token", value = "token令牌", required = false) @RequestParam(name = "token", required = false) String token) {
+    public String logout(@ApiParam(name = "token", value = "token令牌", required = false)
+                @RequestParam(name = "token", required = false) String token) {
         if (StringUtils.isEmpty(token)) {
             return ResultUtil.result(SysConf.ERROR, MessageConf.OPERATION_FAIL);
         }

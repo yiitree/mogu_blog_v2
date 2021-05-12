@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
+ * 获得用户访问信息：request
  * RequestHolder
  *
  * @author 陌溪

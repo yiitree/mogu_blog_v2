@@ -86,6 +86,10 @@ public class LoggerAspect {
             // 异步存储日志
             sysLogHandle.setSysLogHandle(userUid, behavior.getBehavior(), result.get(SysConf.MODULE_UID), result.get(SysConf.OTHER_DATA));
             sysLogHandle.onRun();
+
+//            ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+//            executor.execute(sysLogHandle);
+
         }
     }
 }

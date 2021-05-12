@@ -56,6 +56,7 @@ public class SysLogHandle extends AbstractRequestAwareRunnable {
 
     @Override
     protected void onRun() {
+        // 获得request中的信息，保存在map中，饭后赋值给webVisit对象中，异步保存到数据库中
         HttpServletRequest request = RequestHolder.getRequest();
         Map<String, String> map = IpUtils.getOsAndBrowserInfo(request);
         String os = map.get(SysConf.OS);

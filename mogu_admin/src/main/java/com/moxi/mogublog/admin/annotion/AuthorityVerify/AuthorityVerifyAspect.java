@@ -64,11 +64,17 @@ public class AuthorityVerifyAspect {
 
     }
 
+    /**
+     * 后台管理页面的权限校验，用户都是管理员
+     * @param joinPoint
+     * @param authorityVerify
+     * @return
+     * @throws Throwable
+     */
     @Around(value = "pointcut(authorityVerify)")
     public Object doAround(ProceedingJoinPoint joinPoint, AuthorityVerify authorityVerify) throws Throwable {
 
         ServletRequestAttributes attribute = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
         HttpServletRequest request = attribute.getRequest();
 
         //获取请求路径
@@ -77,15 +83,17 @@ public class AuthorityVerifyAspect {
         // 解析出请求者的ID和用户名
         String adminUid = request.getAttribute(SysConf.ADMIN_UID).toString();
 
-        // 管理员能够访问的路径
+        // 管理员能够访问的路径  结构： ADMIN_VISIT_MENU:adminUid
         String visitUrlStr = redisUtil.get(RedisConf.ADMIN_VISIT_MENU + RedisConf.SEGMENTATION + adminUid);
 
         LinkedTreeMap<String, String> visitMap = new LinkedTreeMap<>();
 
+        // 如果redis已有缓存
         if (StringUtils.isNotEmpty(visitUrlStr)) {
             // 从Redis中获取
             visitMap = (LinkedTreeMap<String, String>) JsonUtils.jsonToMap(visitUrlStr, String.class);
         } else {
+            // 如果redis没有缓存，就从数据库中获取并添加缓存
             // 查询数据库获取
             Admin admin = adminService.getById(adminUid);
 

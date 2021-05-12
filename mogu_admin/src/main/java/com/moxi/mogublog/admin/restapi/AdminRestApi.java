@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
+ * 后端页面只能管理员才能进去，只是管理员也是有权限设置的
  * 管理员表 RestApi
  *
  * @author 陌溪

@@ -4,6 +4,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
 /**
+ * 异步记录日志接口
  * RequestAwareRunnable
  *
  * @author: 陌溪
@@ -23,6 +24,7 @@ public abstract class AbstractRequestAwareRunnable implements Runnable {
     public void run() {
         try {
             RequestContextHolder.setRequestAttributes(requestAttributes);
+            // 多线程调用onRun()方法
             onRun();
         } finally {
             if (Thread.currentThread() != thread) {

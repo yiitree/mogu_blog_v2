@@ -236,7 +236,9 @@ public class UserServiceImpl extends SuperServiceImpl<UserMapper, User> implemen
         // 字段拷贝【将userVO中的内容拷贝至user】
         BeanUtils.copyProperties(userVO, user, SysConf.STATUS);
         String defaultPassword = sysParamsService.getSysParamsValueByKey(SysConf.SYS_DEFAULT_PASSWORD);
+        // 密码加密
         user.setPassWord(MD5Utils.string2MD5(defaultPassword));
+        // 用户来源：mogu自己注册
         user.setSource("MOGU");
         user.insert();
         return ResultUtil.successWithMessage(MessageConf.INSERT_SUCCESS);

@@ -409,6 +409,11 @@ public class AdminServiceImpl extends SuperServiceImpl<AdminMapper, Admin> imple
         return ResultUtil.successWithMessage(MessageConf.DELETE_SUCCESS);
     }
 
+    /**
+     * 强行退出功能
+     * @param tokenUidList
+     * @return
+     */
     @Override
     public String forceLogout(List<String> tokenUidList) {
         if (tokenUidList == null || tokenUidList.size() == 0) {
